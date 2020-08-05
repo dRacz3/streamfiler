@@ -2,13 +2,13 @@
 #define STREAMFILER_TCPSTREAMREADER_H
 
 
-#include "FileWriter.h"
+#include "ConsoleWriter.h"
 
 class TCPStreamReader {
 public:
-    TCPStreamReader(int connections, int limit, float timeout, FileWriter writer);
+    TCPStreamReader(int connections, int limit, float timeout, ConsoleWriter writer);
 
-    void listen(int port);
+    bool startListening(int port);
 
     void shutdown();
 
@@ -16,7 +16,7 @@ protected:
     int m_maxConnectionCount;
     int m_dataLimit;
     float m_timeout;
-    FileWriter m_writer;
+    ConsoleWriter m_writer;
     bool m_running = false;
 };
 

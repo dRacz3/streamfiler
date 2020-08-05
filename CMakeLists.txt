@@ -3,6 +3,21 @@ project(streamfiler)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 
-add_executable(streamfiler src/main.cpp src/FileWriter.cpp src/FileWriter.h src/TCPStreamReader.cpp src/TCPStreamReader.h)
+include_directories(src
+        src/DiskWriter
+        src/SocketCommunication
+        src/Utilities)
+
+add_executable(streamfiler
+        Server/main.cpp
+        src/DiskWriter/ConsoleWriter.cpp
+        src/SocketCommunication/TCPStreamReader.cpp src/DiskWriter/IFileWriter.h)
+
+target_link_libraries(streamfiler PRIVATE Threads::Threads)
+
+
+add_executable(streamfilerclient Client/main.cpp)
