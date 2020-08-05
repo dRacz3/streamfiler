@@ -9,7 +9,8 @@ struct Connection {
 
     [[nodiscard]] bool isClosed() const;
 
-    struct pollfd data;
+    struct pollfd data[1];
+
 };
 
 

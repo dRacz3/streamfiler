@@ -70,8 +70,9 @@ public:
         }
 
         Connection welcomeSocketConnection{};
-        welcomeSocketConnection.data.fd = m_welcomeSocket;
-        welcomeSocketConnection.data.events = POLLIN;
+        welcomeSocketConnection.data[0].fd = m_welcomeSocket;
+        welcomeSocketConnection.data[0].events = POLLIN;
+        m_logger.info("Welcome socket fd:" + std::to_string(m_welcomeSocket));
         m_connections.push_back(welcomeSocketConnection);
 
         startBackgroundThread();
@@ -95,15 +96,19 @@ protected:
         m_logger.info("Starting internal thread");
         m_running = true;
         m_backgroundThread = std::thread([&]() {
+            m_logger.info("Background thread is running!");
             while (m_running) {
-                handleNewConnection();
+                std::for_each(m_connections.begin(), m_connections.end(), [&](Connection c) {
+                    processConnection(c);
+                });
+                cleanupConnections();
+                usleep(500);
             }
         });
         m_backgroundThread.detach();
     }
 
     void handleNewConnection() {
-//        m_logger.info("handleNewConnection");
         int newFileDescriptor = -1;
         do {
             newFileDescriptor = accept(m_welcomeSocket, nullptr, nullptr);
@@ -114,12 +119,12 @@ protected:
                 return;
             }
             int activeConnectionCount = getNumberOfActiveConnections();
-            if (activeConnectionCount < MAXIMUM_CONNECTIONS) {
+            if (activeConnectionCount < MAXIMUM_CONNECTIONS + 1) {
                 m_logger.info("New incoming connection " + std::to_string(activeConnectionCount) + "-> FD:" +
                               std::to_string(newFileDescriptor));
                 Connection newConnection{};
-                newConnection.data.fd = newFileDescriptor;
-                newConnection.data.events = POLLIN;
+                newConnection.data[0].fd = newFileDescriptor;
+                newConnection.data[0].events = POLLIN;
                 m_connections.push_back(newConnection);
             } else {
                 m_logger.warning("Failed to accept connection: maximum number of m_connections reached");
@@ -128,8 +133,68 @@ protected:
         } while (newFileDescriptor != -1);
     }
 
+    void processConnection(Connection c) {
+        if (poll(c.data, 1, 50) < 0) {
+            m_logger.error("poll() failed");
+        }
+
+        if (c.data[0].revents == 0) {
+            return;
+        }
+
+        if (c.data[0].revents & POLLHUP) {
+            m_logger.info("Connection " + std::to_string(c.data[0].fd) + " closed: hung up");
+            c.close();
+            return;
+        }
+
+        if (c.data[0].revents != POLLIN) {
+            m_logger.info(
+                    "Connection " + std::to_string(c.data[0].fd) + " closed, revents: " + std::to_string(c.data[0].revents));
+            c.close();
+            return;
+        }
+
+        if (c.data[0].fd == m_welcomeSocket) {
+            m_logger.info("Checking welcome socket.");
+            handleNewConnection();
+        } else {
+            char buffer[80];
+            memset(buffer, 0, sizeof(buffer));
+            int recvrc = recv(c.data[0].fd, buffer, sizeof(buffer), 0);
+            if (recvrc < 0) {
+                if (errno != EWOULDBLOCK) {
+                    m_logger.info("Connection closed: " + std::to_string(errno));
+                    c.close();
+                }
+                return;
+            }
+            if (recvrc == 0) {
+                m_logger.info("Connection closed: " + std::to_string(errno));
+                c.close();
+                return;
+            }
+
+            std::stringstream ss;
+            ss << "ECHO:" << buffer;
+            ss << "\n";
+            memset(buffer, 0, sizeof(buffer));
+            strcpy(buffer, ss.str().c_str());
+            if (send(c.data[0].fd, buffer, strlen(buffer), 0) < 0) {
+                c.close();
+                return;
+            }
+        }
+    }
+
     int getNumberOfActiveConnections() {
         return std::count_if(m_connections.begin(), m_connections.end(), [](Connection c) { return !c.isClosed(); });
+    }
+
+    void cleanupConnections() {
+        std::remove_if(m_connections.begin(), m_connections.end(), [](Connection c) {
+            return c.isClosed();
+        });
     }
 
     std::thread m_backgroundThread;
