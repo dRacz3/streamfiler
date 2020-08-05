@@ -69,20 +69,36 @@ public:
 
         connections[0].data.fd = m_welcomeSocket;
         connections[0].data.events = POLLIN;
-
+        startBackgroundThread();
         return true;
     }
 
     bool stop() {
         m_logger.info("Stopping listening..");
+        m_running = false;
+        if (m_backgroundThread.joinable()) {
+            m_logger.info("Waiting for background thread.");
+            m_backgroundThread.join();
+        } else {
+            m_logger.info("Background thread is not running...");
+
+
+        }
         return false;
     }
 
 protected:
-    void startInternalThread() {
+    void startBackgroundThread() {
         m_logger.info("Starting internal thread");
+        m_running = true;
+        m_backgroundThread = std::thread([&]() {
+
+        });
+        m_backgroundThread.detach();
     }
 
+    std::thread m_backgroundThread;
+    bool m_running{false};
     Logger m_logger;
     int m_welcomeSocket{};
     std::array<Connection, MAXIMUM_CONNECTIONS> connections;
