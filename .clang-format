@@ -1,0 +1,22 @@
+BasedOnStyle: Google 
+IndentWidth: 3
+---
+Language: Cpp
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterStruct: true
+  AfterClass : true
+  SplitEmptyFunction: false
+  AfterControlStatement: true
+  AfterFunction: true
+  BeforeElse: true
+  BeforeCatch : true
+BreakAfterJavaFieldAnnotations: true
+AlignConsecutiveDeclarations: false
+ColumnLimit: 120
+BinPackArguments : false
+BreakBeforeBinaryOperators : All
