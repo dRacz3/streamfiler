@@ -150,7 +150,7 @@ protected:
 
         if (c.data[0].revents != POLLIN) {
             m_logger.info(
-                    "Connection " + std::to_string(c.data[0].fd) + " closed, revents: " + std::to_string(c.data[0].revents));
+                    "Connection :" + c.toString() + " closed, revents: " + std::to_string(c.data[0].revents));
             c.close();
             return;
         }
@@ -164,13 +164,13 @@ protected:
             int recvrc = recv(c.data[0].fd, buffer, sizeof(buffer), 0);
             if (recvrc < 0) {
                 if (errno != EWOULDBLOCK) {
-                    m_logger.info("Connection closed: " + std::to_string(errno));
+                    m_logger.info("Connection closed: " + c.toString() + " with errno: " + std::strerror(errno));
                     c.close();
                 }
                 return;
             }
             if (recvrc == 0) {
-                m_logger.info("Connection closed: " + std::to_string(errno));
+                m_logger.info("Connection closed: " + c.toString() + " with errno: " + std::strerror(errno));
                 c.close();
                 return;
             }
@@ -192,7 +192,8 @@ protected:
     }
 
     void cleanupConnections() {
-        std::remove_if(m_connections.begin(), m_connections.end(), [](Connection c) {
+        std::remove_if(m_connections.begin(), m_connections.end(), [&](Connection c) {
+            m_logger.info("Checking to remove: " + c.toString());
             return c.isClosed();
         });
     }

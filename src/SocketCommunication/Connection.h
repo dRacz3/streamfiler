@@ -3,6 +3,7 @@
 
 
 #include <poll.h>
+#include <string>
 
 struct Connection {
     void close();
@@ -10,6 +11,8 @@ struct Connection {
     [[nodiscard]] bool isClosed() const;
 
     struct pollfd data[1];
+
+    std::string toString();
 
 };
 
