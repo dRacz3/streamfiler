@@ -5,10 +5,19 @@
 #include <iostream>
 #include <utility>
 
+#define LOGGER_NAME_LENGTH 14
+
 class Logger {
 public:
-    explicit Logger(std::string name = "ROOT") : m_name(std::move(name)) {
-
+    explicit Logger(std::string loggerName = "ROOT")  {
+        if(loggerName.size() < LOGGER_NAME_LENGTH)
+        {
+            while(loggerName.size() < LOGGER_NAME_LENGTH)
+            {
+                loggerName+=" ";
+            }
+        }
+        m_name = loggerName;
     }
 
     void info(const std::string &message) {
