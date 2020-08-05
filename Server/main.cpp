@@ -5,7 +5,7 @@ int main(int argc, char const *argv[]) {
     stream.init(2222);
     Logger logger("MAIN");
     logger.info("Press [Enter] to exit");
-//    getchar();
+    getchar();
     usleep(500000);
     logger.info("Exiting main...");
     return 0;

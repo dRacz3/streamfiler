@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
         printf("Hello message sent\n");
         valread = read(sock, buffer, 1024);
         printf("%s\n", buffer);
-        usleep(100);
+        usleep(100000);
     }
     return 0;
 }

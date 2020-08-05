@@ -18,7 +18,9 @@
 #include <thread>
 #include <Utilities/Logger.h>
 #include <map>
+#include <algorithm>
 #include "Connection.h"
+#include <vector>
 
 template<size_t MAXIMUM_CONNECTIONS>
 class MultiClientTCPStreamListener {
@@ -67,8 +69,11 @@ public:
             return false;
         }
 
-        connections[0].data.fd = m_welcomeSocket;
-        connections[0].data.events = POLLIN;
+        Connection welcomeSocketConnection{};
+        welcomeSocketConnection.data.fd = m_welcomeSocket;
+        welcomeSocketConnection.data.events = POLLIN;
+        m_connections.push_back(welcomeSocketConnection);
+
         startBackgroundThread();
         return true;
     }
@@ -81,8 +86,6 @@ public:
             m_backgroundThread.join();
         } else {
             m_logger.info("Background thread is not running...");
-
-
         }
         return false;
     }
@@ -92,16 +95,49 @@ protected:
         m_logger.info("Starting internal thread");
         m_running = true;
         m_backgroundThread = std::thread([&]() {
-
+            while (m_running) {
+                handleNewConnection();
+            }
         });
         m_backgroundThread.detach();
+    }
+
+    void handleNewConnection() {
+//        m_logger.info("handleNewConnection");
+        int newFileDescriptor = -1;
+        do {
+            newFileDescriptor = accept(m_welcomeSocket, nullptr, nullptr);
+            if (newFileDescriptor < 0) {
+                if (errno != EWOULDBLOCK) {
+                    m_logger.error("Failed to accept connection");
+                }
+                return;
+            }
+            int activeConnectionCount = getNumberOfActiveConnections();
+            if (activeConnectionCount < MAXIMUM_CONNECTIONS) {
+                m_logger.info("New incoming connection " + std::to_string(activeConnectionCount) + "-> FD:" +
+                              std::to_string(newFileDescriptor));
+                Connection newConnection{};
+                newConnection.data.fd = newFileDescriptor;
+                newConnection.data.events = POLLIN;
+                m_connections.push_back(newConnection);
+            } else {
+                m_logger.warning("Failed to accept connection: maximum number of m_connections reached");
+                close(newFileDescriptor);
+            }
+        } while (newFileDescriptor != -1);
+    }
+
+    int getNumberOfActiveConnections() {
+        return std::count_if(m_connections.begin(), m_connections.end(), [](Connection c) { return !c.isClosed(); });
     }
 
     std::thread m_backgroundThread;
     bool m_running{false};
     Logger m_logger;
     int m_welcomeSocket{};
-    std::array<Connection, MAXIMUM_CONNECTIONS> connections;
+    std::vector<Connection> m_connections;
+
 };
 
 #endif //STREAMFILER_MULTICLIENTTCPSTREAMLISTENER_H
