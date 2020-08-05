@@ -14,5 +14,5 @@ void TCPStreamReader::listen(int maxConnectionNumber) {
 }
 
 void TCPStreamReader::shutdown() {
-
+    m_running = false;
 }
