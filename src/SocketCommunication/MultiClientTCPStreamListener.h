@@ -119,10 +119,9 @@ protected:
             }
             int activeConnectionCount = getNumberOfActiveConnections();
             if (activeConnectionCount < MAXIMUM_CONNECTIONS + 1) {
-                m_logger.info("New incoming connection " + std::to_string(activeConnectionCount) + "-> FD:" +
-                              std::to_string(newFileDescriptor));
                 Connection newConnection(connection_id++, newFileDescriptor);
                 m_connections.push_back(newConnection);
+                m_logger.info("New incoming connection " + newConnection.toString());
             } else {
                 m_logger.warning("Failed to accept connection: maximum number of m_connections reached");
                 close(newFileDescriptor);
@@ -130,7 +129,7 @@ protected:
         } while (newFileDescriptor != -1);
     }
 
-    void processConnection(Connection& c) {
+    void processConnection(Connection &c) {
         if (poll(c.data, 1, 50) < 0) {
             m_logger.error("poll() failed");
         }

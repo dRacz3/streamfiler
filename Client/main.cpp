@@ -30,13 +30,14 @@ int main(int argc, char const *argv[]) {
         printf("\nConnection Failed \n");
         return -1;
     }
-    int counter = 1000;
+    int counter = 100;
     while (counter-- > 0) {
         send(sock, hello, strlen(hello), 0);
-        printf("Hello message sent\n");
+        printf("Hello message sent %d/100 \n", counter
+        );
         valread = read(sock, buffer, 1024);
         printf("%s\n", buffer);
-        usleep(100000);
+        usleep(100);
     }
     return 0;
 }
