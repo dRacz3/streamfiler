@@ -22,16 +22,22 @@
 #include "Connection.h"
 #include <vector>
 
-template<size_t MAXIMUM_CONNECTIONS>
+
 class MultiClientTCPStreamListener {
 public:
-    MultiClientTCPStreamListener() : m_logger("TCPListener") {
+
+    struct Parameters {
+        int port;
+        size_t maxConnectionCount;
+    };
+
+    explicit MultiClientTCPStreamListener(Parameters params) : m_params(params), m_logger("TCPListener") {
     };
 
     virtual ~MultiClientTCPStreamListener() { stop(); };
 
-    bool init(int port) {
-        m_logger.info("Initializing on port:" + std::to_string(port));
+    bool init() {
+        m_logger.info("Initializing on port:" + std::to_string(m_params.port));
         struct sockaddr_in serverAddr{};
         m_welcomeSocket = socket(PF_INET, SOCK_STREAM, 0);
         if (m_welcomeSocket < 0) {
@@ -54,7 +60,7 @@ public:
         memset(&serverAddr, 0, sizeof(serverAddr));
 
         serverAddr.sin_family = AF_INET;
-        serverAddr.sin_port = htons(port);
+        serverAddr.sin_port = htons(m_params.port);
         serverAddr.sin_addr.s_addr = INADDR_ANY;
 
         if (bind(m_welcomeSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0) {
@@ -62,7 +68,7 @@ public:
             return false;
         }
 
-        if (listen(m_welcomeSocket, MAXIMUM_CONNECTIONS) == 0) {
+        if (listen(m_welcomeSocket, m_params.maxConnectionCount) == 0) {
             m_logger.info("Listening");
         } else {
             m_logger.error("Error in setting the socket to listen mode");
@@ -118,8 +124,9 @@ protected:
                 return;
             }
             int activeConnectionCount = getNumberOfActiveConnections();
-            if (activeConnectionCount < MAXIMUM_CONNECTIONS + 1) {
-                Connection newConnection(connection_id++, newFileDescriptor);
+            if (activeConnectionCount < m_params.maxConnectionCount + 1) {
+                connection_id++;
+                Connection newConnection(connection_id, newFileDescriptor);
                 m_connections.push_back(newConnection);
                 m_logger.info("New incoming connection " + newConnection.toString());
             } else {
@@ -195,6 +202,7 @@ protected:
     }
 
     int connection_id = 0;
+    Parameters m_params;
     std::thread m_backgroundThread;
     bool m_running{false};
     Logger m_logger;
