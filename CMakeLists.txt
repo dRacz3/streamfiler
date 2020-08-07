@@ -16,7 +16,9 @@ add_executable(streamfiler
         Server/main.cpp
         src/DiskWriter/ConsoleWriter.cpp
         src/SocketCommunication/TCPStreamReader.cpp
-        src/SocketCommunication/MultiClientTCPStreamListener.h)
+        src/SocketCommunication/MultiClientTCPStreamListener.h
+        src/SocketCommunication/Connection.cpp
+        )
 
 target_link_libraries(streamfiler PRIVATE Threads::Threads)
 
