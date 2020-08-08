@@ -13,7 +13,7 @@ struct Connection {
 
     [[nodiscard]] bool isClosed() const;
 
-    std::string toString() const ;
+    [[nodiscard]] std::string toString() const;
 
     int connection_id;
     bool m_isClosed = false;

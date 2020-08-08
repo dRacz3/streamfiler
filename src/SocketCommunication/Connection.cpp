@@ -1,8 +1,10 @@
+#include <Utilities/Logger.h>
 #include "Connection.h"
 
 void Connection::close() {
     m_isClosed = true;
-
+    data[0].fd = -1;
+    data[0].revents = 0;
     m_logger.info("Closing " + toString());
 }
 
@@ -16,7 +18,8 @@ std::string Connection::toString() const {
            "]";
 }
 
-Connection::Connection(int id, int fd) : connection_id(id), m_logger("Connection-" + std::to_string(id)) {
+Connection::Connection(int id, int fd) : connection_id(id),
+                                         m_logger("con-" + std::to_string(id)) {
     data[0].fd = fd;
     data[0].events = POLLIN;
 }
