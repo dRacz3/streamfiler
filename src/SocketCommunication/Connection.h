@@ -1,28 +1,31 @@
 #ifndef STREAMFILER_CONNECTION_H
 #define STREAMFILER_CONNECTION_H
 
-
+#include <Utilities/Logger.h>
 #include <poll.h>
+
 #include <string>
 
-struct Connection {
+struct Connection
+{
+   Connection(int id, int fd);
 
-    Connection(int id, int fd);
+   void close();
 
-    void close();
+   bool update();
 
-    [[nodiscard]] bool isClosed() const;
+   bool checkConnection();
 
-    [[nodiscard]] std::string toString() const;
+   void processMessage();
 
-    int connection_id;
-    bool m_isClosed = false;
-    struct pollfd data[1]{};
+   [[nodiscard]] bool isClosed() const;
 
-    Logger m_logger;
+   [[nodiscard]] std::string toString() const;
 
-
+   int connection_id;
+   bool m_isClosed = false;
+   struct pollfd data[1]{};
+   Logger m_logger;
 };
 
-
-#endif //STREAMFILER_CONNECTION_H
+#endif  // STREAMFILER_CONNECTION_H
