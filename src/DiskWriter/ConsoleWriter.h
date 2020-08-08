@@ -11,6 +11,7 @@ class ConsoleWriter : public ITextOutput
 {
 public:
     explicit ConsoleWriter(const std::string& filename);
+    ~ConsoleWriter() override;
 
     void write(const std::string &content) override;
 

@@ -5,10 +5,13 @@
 
 class ITextOutput
 {
-public:
-    virtual void write(const std::string &content) = 0;
-
-    virtual void close() = 0;
+  public:
+   virtual ~ITextOutput() {};
+   //! Writes the provided content to the target.
+   //! \param content
+   virtual void write(const std::string& content) = 0;
+   //! \brief Finalize writing.
+   virtual void close() = 0;
 };
 
 #endif  // STREAMFILER_ITEXTOUTPUT_H

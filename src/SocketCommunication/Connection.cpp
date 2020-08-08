@@ -12,6 +12,7 @@ void Connection::close()
    data[0].fd = -1;
    data[0].revents = 0;
    m_logger.info("Closing " + toString());
+   m_output->close();
 }
 
 bool Connection::isClosed() const

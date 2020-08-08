@@ -15,11 +15,12 @@ include_directories(src
 add_executable(streamfiler
         Server/main.cpp
         src/DiskWriter/ConsoleWriter.cpp
+        src/DiskWriter/DiskWriter.cpp
         src/SocketCommunication/MultiClientTCPStreamListener.cpp
         src/SocketCommunication/Connection.cpp
         )
 
-target_link_libraries(streamfiler PRIVATE Threads::Threads)
+target_link_libraries(streamfiler PRIVATE Threads::Threads stdc++fs)
 
 
 add_executable(streamfilerclient Client/main.cpp)
