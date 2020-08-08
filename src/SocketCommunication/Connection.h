@@ -6,13 +6,21 @@
 #include <string>
 
 struct Connection {
+
+    Connection(int id, int fd);
+
     void close();
 
     [[nodiscard]] bool isClosed() const;
 
-    struct pollfd data[1];
+    std::string toString() const ;
 
-    std::string toString();
+    int connection_id;
+    bool m_isClosed = false;
+    struct pollfd data[1]{};
+
+    Logger m_logger;
+
 
 };
 

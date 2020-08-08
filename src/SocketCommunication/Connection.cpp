@@ -1,14 +1,22 @@
 #include "Connection.h"
 
 void Connection::close() {
-    data[0].fd = -1;
-    data[0].revents = 0;
+    m_isClosed = true;
+
+    m_logger.info("Closing " + toString());
 }
 
 bool Connection::isClosed() const {
-    return data[0].fd == -1;
+    m_logger.debug(toString() + "checked in " + __func__);
+    return m_isClosed;
 }
 
-std::string Connection::toString() {
-    return isClosed() ? "[Closed Connection]" : "[Active connection, fd: " + std::to_string(data[0].fd) + "]";
+std::string Connection::toString() const {
+    return "Connection ID: " + std::to_string(connection_id) + " [fd: " + std::to_string(data[0].fd) +
+           "]";
+}
+
+Connection::Connection(int id, int fd) : connection_id(id), m_logger("Connection-" + std::to_string(id)) {
+    data[0].fd = fd;
+    data[0].events = POLLIN;
 }
