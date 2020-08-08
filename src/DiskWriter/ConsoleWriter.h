@@ -1,21 +1,22 @@
 #ifndef STREAMFILER_CONSOLEWRITER_H
 #define STREAMFILER_CONSOLEWRITER_H
 
+#include <Utilities/Logger.h>
 
 #include <string>
-#include <Utilities/Logger.h>
-#include "IFileWriter.h"
 
-class ConsoleWriter : public IFileWriter {
+#include "ITextOutput.h"
+
+class ConsoleWriter : public ITextOutput
+{
 public:
-    explicit ConsoleWriter(std::string filename);
+    explicit ConsoleWriter(const std::string& filename);
 
     void write(const std::string &content) override;
 
     void close() override;
 
 protected:
-    std::string filename;
     Logger m_logger;
 };
 

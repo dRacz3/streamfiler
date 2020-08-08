@@ -1,14 +1,10 @@
 #include "ConsoleWriter.h"
 
-#include <utility>
 #include <iostream>
+#include <utility>
 
-ConsoleWriter::ConsoleWriter(std::string filename) : filename(std::move(filename)), m_logger(filename + "_WRITER") {}
+ConsoleWriter::ConsoleWriter(const std::string& filename) : m_logger(filename + "_WRITER") {}
 
-void ConsoleWriter::close() {
+void ConsoleWriter::close() { m_logger.info("---- closed ----"); }
 
-}
-
-void ConsoleWriter::write(const std::string &content) {
-    std::cout << "[" << filename << "] -> " << content << std::endl;
-}
+void ConsoleWriter::write(const std::string& content) { m_logger.info(content); }
