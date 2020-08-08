@@ -1,5 +1,7 @@
 #include "MultiClientTCPStreamListener.h"
 
+#include <DiskWriter/ConsoleWriter.h>
+
 MultiClientTCPStreamListener::~MultiClientTCPStreamListener() { stop(); }
 MultiClientTCPStreamListener::MultiClientTCPStreamListener(MultiClientTCPStreamListener::Parameters params)
     : m_params(params), m_logger("TCPListener")
@@ -52,7 +54,8 @@ bool MultiClientTCPStreamListener::init()
       return false;
    }
 
-   Connection welcomeSocketConnection(connection_id++, m_welcomeSocket);
+   Connection welcomeSocketConnection(
+       connection_id++, m_welcomeSocket, std::make_shared<ConsoleWriter>("WelcomeSocket"));
    m_logger.info("Welcome socket fd:" + std::to_string(m_welcomeSocket));
    m_connections.push_back(welcomeSocketConnection);
 
@@ -111,10 +114,12 @@ void MultiClientTCPStreamListener::handleNewConnection()
       if (activeConnectionCount < m_params.maxConnectionCount + 1)
       {
          connection_id++;
-         Connection newConnection(connection_id, newFileDescriptor);
+         Connection newConnection(connection_id,
+                                  newFileDescriptor,
+                                  std::make_shared<ConsoleWriter>("Connection" + std::to_string(connection_id)));
          m_connections.push_back(newConnection);
          m_logger.info("New incoming connection " + newConnection.toString());
-      }
+      }c
       else
       {
          m_logger.warning("Failed to accept connection: maximum number of m_connections reached");

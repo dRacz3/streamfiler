@@ -1,6 +1,8 @@
 #ifndef STREAMFILER_ITEXTOUTPUT_H
 #define STREAMFILER_ITEXTOUTPUT_H
 
+#include <string>
+
 class ITextOutput
 {
 public:

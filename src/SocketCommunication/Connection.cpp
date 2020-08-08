@@ -25,7 +25,8 @@ std::string Connection::toString() const
    return "Connection ID: " + std::to_string(connection_id) + " [fd: " + std::to_string(data[0].fd) + "]";
 }
 
-Connection::Connection(int id, int fd) : connection_id(id), m_logger("con-" + std::to_string(id))
+Connection::Connection(int id, int fd, std::shared_ptr<ITextOutput> streamOutput)
+    : connection_id(id), m_logger("con-" + std::to_string(id)), m_output(std::move(streamOutput))
 {
    data[0].fd = fd;
    data[0].events = POLLIN;
@@ -82,6 +83,11 @@ void Connection::processMessage()
    }
 
    std::stringstream ss;
+   if (m_output)
+   {
+      m_output->write(buffer);
+   }
+
    ss << "ECHO:" << buffer;
    ss << "\n";
    memset(buffer, 0, sizeof(buffer));
