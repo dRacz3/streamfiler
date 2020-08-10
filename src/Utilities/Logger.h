@@ -45,13 +45,13 @@ public:
 
     void warning(const std::string &message) const {
         if (m_level <= LEVEL::WARNING) {
-            std::cout << "[WARNING]" << "[" << m_name << "] [" << getTimestamp() << "] " << message << std::endl;
+            std::cerr << "[WARNING]" << "[" << m_name << "] [" << getTimestamp() << "] " << message << std::endl;
         }
     }
 
     void error(const std::string &message) const {
         if (m_level <= LEVEL::ERROR) {
-            std::cout << "[ ERROR ]" << "[" << m_name << "] [" << getTimestamp() << "] " << message << std::endl;
+            std::cerr << "[ ERROR ]" << "[" << m_name << "] [" << getTimestamp() << "] " << message << std::endl;
         }
     }
 
