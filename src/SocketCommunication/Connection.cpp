@@ -24,7 +24,7 @@ bool Connection::isClosed() const
 std::string Connection::toString() const
 {
    std::stringstream ss;
-   ss << "Connection ID : " << std::to_string(connection_id) << " | fd: " << std::to_string(data[0].fd);
+   ss << "Connection ID : " << std::to_string(connection_id);
    ss << " | Timeout Active: " << m_timeoutProperties.timeoutActive
       << ", value: " << m_timeoutProperties.m_timeoutDelay.count() << "ms";
    return ss.str();
@@ -121,7 +121,7 @@ bool Connection::isTimedOut()
    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastMessageTimestamp).count()
        > m_timeoutProperties.m_timeoutDelay.count())
    {
-      m_logger.info("Has not received data over the connection for a while now. Connectimed out");
+      m_logger.info("Has not received data over the connection for a while now. Connection timed out");
       return true;
    }
    return false;

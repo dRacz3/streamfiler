@@ -28,18 +28,36 @@ class MultiClientTCPStreamListener
   public:
    struct Parameters
    {
+      //! Connection port
       int port;
+      //! Maximum number of connections.
       size_t maxConnectionCount;
+      //! Timeout value in milliseconds.
       int timeout;
+      //! Location for the output stream.
       std::string folder;
+      //! Bandwidth limitation [kilobyte/s]
       int bandwithLimit;
    };
 
+   /**
+    * Create a MultiClientTCPStreamListener
+    * @param params - associated parameter list.
+    */
    explicit MultiClientTCPStreamListener(Parameters params);
 
    virtual ~MultiClientTCPStreamListener();
 
+   /**
+    * Initialize the listener, start background thread.
+    * @return true on success, false otherwise.
+    */
    bool init();
+
+   /**
+    * Gracefully stop the listener thread.
+    * @return true on success, false otherwise.
+    */
    bool stop();
 
   protected:
