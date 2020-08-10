@@ -26,16 +26,16 @@ std::string Connection::toString() const
 {
    std::stringstream ss;
    ss << "Connection ID : " << std::to_string(connection_id);
-   ss << " | Timeout Active: " << m_timeoutProperties.timeoutActive
-      << ", value: " << m_timeoutProperties.m_timeoutDelay.count() << "ms";
+   ss << " | Timeout Active: " << m_connectionProperties.timeoutActive
+      << ", value: " << m_connectionProperties.m_timeoutDelay.count() << "ms";
    return ss.str();
 }
 
-Connection::Connection(int id, int fd, TimeoutProperties timeout, std::shared_ptr<ITextOutput> streamOutput)
+Connection::Connection(int id, int fd, ConnectionProperties timeout, std::shared_ptr<ITextOutput> streamOutput)
     : connection_id(id),
       m_logger("con-" + std::to_string(id)),
       m_output(std::move(streamOutput)),
-      m_timeoutProperties(timeout)
+      m_connectionProperties(timeout)
 {
    data[0].fd = fd;
    data[0].events = POLLIN;
@@ -74,16 +74,16 @@ bool Connection::checkConnection()
 }
 void Connection::processMessage(TokenBucket& tokens)
 {
-   const int BUFFER_SIZE = 8;
+   int BUFFER_SIZE = m_connectionProperties.bandwidthLimit / 2;
    while (!tokens.consume(BUFFER_SIZE))
    {
       m_logger.debug("Waiting for tokens...");
-      usleep(5000);
+      usleep(500);
    }
    char buffer[BUFFER_SIZE];
    memset(buffer, 0, sizeof(buffer));
    int recvrc = read(data[0].fd, buffer, sizeof(buffer));
-   m_logger.debug("Received: " + std::string(buffer));
+   m_logger.info("Received: " + std::string(buffer));
    if (recvrc < 0)
    {
       if (errno != EWOULDBLOCK)
@@ -120,14 +120,14 @@ int Connection::getFileDescriptor() const { return data[0].fd; }
 
 bool Connection::isTimedOut()
 {
-   if (!m_timeoutProperties.timeoutActive)
+   if (!m_connectionProperties.timeoutActive)
    {
       return false;
    }
    auto now = std::chrono::steady_clock::now();
 
    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastMessageTimestamp).count()
-       > m_timeoutProperties.m_timeoutDelay.count())
+       > m_connectionProperties.m_timeoutDelay.count())
    {
       m_logger.info("Has not received data over the connection for a while now. Connection timed out");
       return true;

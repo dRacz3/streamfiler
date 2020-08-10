@@ -10,12 +10,14 @@
 
 #include "Tokenbucket.h"
 
-struct TimeoutProperties
+struct ConnectionProperties
 {
    //! Flag to enable/disable timeout.
    bool timeoutActive;
    //! Desired timeout in milliseconds.
    std::chrono::duration<float, std::milli> m_timeoutDelay;
+   //! Bandwidth limit in kb/s
+   int bandwidthLimit;
 };
 
 class Connection
@@ -28,7 +30,7 @@ class Connection
     * @param timeout - Timeout parameters
     * @param streamOutput - Target for the received stream to be redirected.
     */
-   Connection(int id, int fd, TimeoutProperties timeout, std::shared_ptr<ITextOutput> streamOutput);
+   Connection(int id, int fd, ConnectionProperties timeout, std::shared_ptr<ITextOutput> streamOutput);
 
    /**
     * Close the connection
@@ -82,7 +84,7 @@ class Connection
    Logger m_logger;
    std::shared_ptr<ITextOutput> m_output;
    std::chrono::steady_clock::time_point m_lastMessageTimestamp;
-   TimeoutProperties m_timeoutProperties;
+   ConnectionProperties m_connectionProperties;
 };
 
 #endif  // STREAMFILER_CONNECTION_H

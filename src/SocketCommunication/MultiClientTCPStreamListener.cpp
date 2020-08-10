@@ -58,10 +58,11 @@ bool MultiClientTCPStreamListener::init()
       return false;
    }
 
-   Connection welcomeSocketConnection(connection_id++,
-                                      m_welcomeSocket,
-                                      {false, std::chrono::duration<float, std::milli>(m_params.timeout)},
-                                      std::make_shared<ConsoleWriter>("WelcomeSocket"));
+   Connection welcomeSocketConnection(
+       connection_id++,
+       m_welcomeSocket,
+       {false, std::chrono::duration<float, std::milli>(m_params.timeout), m_params.bandwithLimit},
+       std::make_shared<ConsoleWriter>("WelcomeSocket"));
    m_logger.info("Welcome socket fd:" + std::to_string(m_welcomeSocket));
    m_connections.push_back(welcomeSocketConnection);
 
@@ -96,7 +97,7 @@ void MultiClientTCPStreamListener::startBackgroundThread()
          std::for_each(m_connections.begin(), m_connections.end(), [&](Connection& c) { processConnection(c); });
 
          cleanupConnections();
-         usleep(5);
+         usleep(1);
       }
    });
    m_backgroundThread.detach();
@@ -124,7 +125,7 @@ void MultiClientTCPStreamListener::handleNewConnection()
                                   newFileDescriptor,
                                   {m_params.timeout != -1,
                                    std::chrono::duration<float, std::milli>(m_params.timeout),
-             std::make_shared<DiskWriter>(m_params.folder, "Connection" + std::to_string(connection_id)));
+                                   m_params.bandwithLimit},
                                   std::make_shared<DiskWriter>(m_params.folder, getTimestampedNameForFolder()));
          m_connections.push_back(newConnection);
          m_logger.info("New incoming connection " + newConnection.toString());
