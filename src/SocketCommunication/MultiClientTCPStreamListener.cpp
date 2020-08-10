@@ -149,6 +149,12 @@ void MultiClientTCPStreamListener::processConnection(Connection& c)
       return;
    }
 
+   if (!c.checkConnection())
+   {
+      c.close();
+      return;
+   }
+   
    if (c.getFileDescriptor() == m_welcomeSocket)
    {
       m_logger.debug("Checking welcome socket.");
