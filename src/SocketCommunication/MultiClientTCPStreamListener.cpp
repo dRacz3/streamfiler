@@ -2,6 +2,7 @@
 
 #include <DiskWriter/ConsoleWriter.h>
 #include <DiskWriter/DiskWriter.h>
+#include <Utilities/TimeStampUtils.h>
 
 #include <utility>
 
@@ -119,12 +120,12 @@ void MultiClientTCPStreamListener::handleNewConnection()
       if (activeConnectionCount < m_params.maxConnectionCount + 1)
       {
          connection_id++;
-         Connection newConnection(
-             connection_id,
-             newFileDescriptor,
-             {m_params.timeout != -1, std::chrono::duration<float, std::milli>(m_params.timeout)},
-             // TODO: Pass current timestamp for filename
+         Connection newConnection(connection_id,
+                                  newFileDescriptor,
+                                  {m_params.timeout != -1,
+                                   std::chrono::duration<float, std::milli>(m_params.timeout),
              std::make_shared<DiskWriter>(m_params.folder, "Connection" + std::to_string(connection_id)));
+                                  std::make_shared<DiskWriter>(m_params.folder, getTimestampedNameForFolder()));
          m_connections.push_back(newConnection);
          m_logger.info("New incoming connection " + newConnection.toString());
       }
