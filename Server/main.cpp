@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
    std::vector<std::string> sources;
    int connections = 1;
    std::string folder = "./";
-   int limit = 1024;
+   int limit = 32; // byte / sec
    double timeout = -1;
 
    int port = 2222;
