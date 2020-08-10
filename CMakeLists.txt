@@ -60,6 +60,6 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 # Now simply link against gtest or gtest_main as needed. Eg
-add_executable(tests tests/gtest_main.cpp)
-target_link_libraries(tests gtest_main)
+add_executable(tests tests/gtest_main.cpp tests/DiskWriterTests.cpp src/DiskWriter/DiskWriter.cpp)
+target_link_libraries(tests gtest_main Threads::Threads stdc++fs)
 add_test(NAME example_test COMMAND example)
