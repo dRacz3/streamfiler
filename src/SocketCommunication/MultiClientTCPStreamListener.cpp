@@ -57,8 +57,10 @@ bool MultiClientTCPStreamListener::init()
       return false;
    }
 
-   Connection welcomeSocketConnection(
-       connection_id++, m_welcomeSocket, std::make_shared<ConsoleWriter>("WelcomeSocket"));
+   Connection welcomeSocketConnection(connection_id++,
+                                      m_welcomeSocket,
+                                      {false, std::chrono::duration<float, std::milli>(m_params.timeout)},
+                                      std::make_shared<ConsoleWriter>("WelcomeSocket"));
    m_logger.info("Welcome socket fd:" + std::to_string(m_welcomeSocket));
    m_connections.push_back(welcomeSocketConnection);
 
@@ -120,6 +122,7 @@ void MultiClientTCPStreamListener::handleNewConnection()
          Connection newConnection(
              connection_id,
              newFileDescriptor,
+             {m_params.timeout != -1, std::chrono::duration<float, std::milli>(m_params.timeout)},
              // TODO: Pass current timestamp for filename
              std::make_shared<DiskWriter>(m_params.folder, "Connection" + std::to_string(connection_id)));
          m_connections.push_back(newConnection);
@@ -136,18 +139,17 @@ void MultiClientTCPStreamListener::handleNewConnection()
 void MultiClientTCPStreamListener::processConnection(Connection& c)
 {
    bool anyUpdate = c.update();
+
    if (!anyUpdate)
    {
+      if (c.isTimedOut())
+      {
+         c.close();
+      }
       return;
    }
 
-   if (!c.checkConnection())
-   {
-      c.close();
-      return;
-   }
-
-   if (c.data[0].fd == m_welcomeSocket)
+   if (c.getFileDescriptor() == m_welcomeSocket)
    {
       m_logger.debug("Checking welcome socket.");
       handleNewConnection();

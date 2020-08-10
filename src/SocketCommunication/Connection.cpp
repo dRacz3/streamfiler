@@ -23,11 +23,18 @@ bool Connection::isClosed() const
 
 std::string Connection::toString() const
 {
-   return "Connection ID: " + std::to_string(connection_id) + " [fd: " + std::to_string(data[0].fd) + "]";
+   std::stringstream ss;
+   ss << "Connection ID : " << std::to_string(connection_id) << " | fd: " << std::to_string(data[0].fd);
+   ss << " | Timeout Active: " << m_timeoutProperties.timeoutActive
+      << ", value: " << m_timeoutProperties.m_timeoutDelay.count() << "ms";
+   return ss.str();
 }
 
-Connection::Connection(int id, int fd, std::shared_ptr<ITextOutput> streamOutput)
-    : connection_id(id), m_logger("con-" + std::to_string(id)), m_output(std::move(streamOutput))
+Connection::Connection(int id, int fd, TimeoutProperties timeout, std::shared_ptr<ITextOutput> streamOutput)
+    : connection_id(id),
+      m_logger("con-" + std::to_string(id)),
+      m_output(std::move(streamOutput)),
+      m_timeoutProperties(timeout)
 {
    data[0].fd = fd;
    data[0].events = POLLIN;
@@ -44,6 +51,8 @@ bool Connection::update()
    {
       return false;
    }
+
+   m_lastMessageTimestamp = std::chrono::steady_clock::now();
    return true;
 }
 bool Connection::checkConnection()
@@ -98,4 +107,22 @@ void Connection::processMessage(TokenBucket tokens)
       close();
       return;
    }
+}
+int Connection::getFileDescriptor() const { return data[0].fd; }
+
+bool Connection::isTimedOut()
+{
+   if (!m_timeoutProperties.timeoutActive)
+   {
+      return false;
+   }
+   auto now = std::chrono::steady_clock::now();
+
+   if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastMessageTimestamp).count()
+       > m_timeoutProperties.m_timeoutDelay.count())
+   {
+      m_logger.info("Has not received data over the connection for a while now. Connectimed out");
+      return true;
+   }
+   return false;
 }
