@@ -20,20 +20,31 @@ static void show_usage()
 
 int main(int argc, char const* argv[])
 {
-   if (argc < 4)
-   {
-      show_usage();
-      return 1;
-   }
-
    std::vector<std::string> sources;
    int connections = 1;
    std::string folder = "./";
    int limit = 1024;
    double timeout = -1;
 
+   int port = 2222;
+   try
+   {
+      port = std::stoi(argv[argc - 1]);
+   }
+   catch (std::logic_error&)
+   {
+      std::cerr << " ERROR! Please provide port number." << std::endl;
+      show_usage();
+      exit(EXIT_FAILURE);
+   }
+
    for (int i = 1; i < argc; ++i)
    {
+      if (std::string(argv[i]) == "-h")
+      {
+         show_usage();
+         exit(0);
+      }
       if (std::string(argv[i]) == "-f")
       {
          if (i + 1 < argc)
@@ -93,12 +104,12 @@ int main(int argc, char const* argv[])
       }
    }
 
-   MultiClientTCPStreamListener stream({2222, 5});
+   MultiClientTCPStreamListener stream(
+       {port, static_cast<size_t>(connections), static_cast<int>(timeout * 1000), folder, limit});
    stream.init();
    Logger logger("MAIN");
    logger.info("Press [Enter] to exit");
    getchar();
-   usleep(50000);
    logger.info("Exiting main...");
    return 0;
 }
