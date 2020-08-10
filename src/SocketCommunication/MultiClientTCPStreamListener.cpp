@@ -3,9 +3,11 @@
 #include <DiskWriter/ConsoleWriter.h>
 #include <DiskWriter/DiskWriter.h>
 
+#include <utility>
+
 MultiClientTCPStreamListener::~MultiClientTCPStreamListener() { stop(); }
 MultiClientTCPStreamListener::MultiClientTCPStreamListener(MultiClientTCPStreamListener::Parameters params)
-    : m_params(params), m_logger("TCPListener"), m_tokenBucket(26, 26)
+    : m_params(std::move(params)), m_logger("TCPListener"), m_tokenBucket(26, 26)
 {}
 
 bool MultiClientTCPStreamListener::init()
@@ -118,7 +120,8 @@ void MultiClientTCPStreamListener::handleNewConnection()
          Connection newConnection(
              connection_id,
              newFileDescriptor,
-             std::make_shared<DiskWriter>("/var/tmp", "Connection" + std::to_string(connection_id)));
+             // TODO: Pass current timestamp for filename
+             std::make_shared<DiskWriter>(m_params.folder, "Connection" + std::to_string(connection_id)));
          m_connections.push_back(newConnection);
          m_logger.info("New incoming connection " + newConnection.toString());
       }

@@ -23,7 +23,6 @@
 #include "Connection.h"
 #include "Tokenbucket.h"
 
-
 class MultiClientTCPStreamListener
 {
   public:
@@ -31,6 +30,9 @@ class MultiClientTCPStreamListener
    {
       int port;
       size_t maxConnectionCount;
+      int timeout;
+      std::string folder;
+      int bandwithLimit;
    };
 
    explicit MultiClientTCPStreamListener(Parameters params);
