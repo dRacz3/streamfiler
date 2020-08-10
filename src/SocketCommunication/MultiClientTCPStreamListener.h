@@ -21,6 +21,8 @@
 #include <vector>
 
 #include "Connection.h"
+#include "Tokenbucket.h"
+
 
 class MultiClientTCPStreamListener
 {
@@ -52,6 +54,8 @@ class MultiClientTCPStreamListener
    Logger m_logger;
    int m_welcomeSocket{};
    std::vector<Connection> m_connections;
+
+   TokenBucket m_tokenBucket;
 };
 
 #endif  // STREAMFILER_MULTICLIENTTCPSTREAMLISTENER_H

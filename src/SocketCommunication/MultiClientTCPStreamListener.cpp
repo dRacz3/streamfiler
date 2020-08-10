@@ -5,7 +5,7 @@
 
 MultiClientTCPStreamListener::~MultiClientTCPStreamListener() { stop(); }
 MultiClientTCPStreamListener::MultiClientTCPStreamListener(MultiClientTCPStreamListener::Parameters params)
-    : m_params(params), m_logger("TCPListener")
+    : m_params(params), m_logger("TCPListener"), m_tokenBucket(26, 26)
 {}
 
 bool MultiClientTCPStreamListener::init()
@@ -151,7 +151,7 @@ void MultiClientTCPStreamListener::processConnection(Connection& c)
    }
    else
    {
-      c.processMessage();
+      c.processMessage(m_tokenBucket);
    }
 }
 

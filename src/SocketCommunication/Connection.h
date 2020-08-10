@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include "Tokenbucket.h"
 
 struct Connection
 {
@@ -17,7 +18,7 @@ struct Connection
 
    bool checkConnection();
 
-   void processMessage();
+   void processMessage(TokenBucket tokens);
 
    [[nodiscard]] bool isClosed() const;
 

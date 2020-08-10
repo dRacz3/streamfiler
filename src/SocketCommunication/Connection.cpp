@@ -62,9 +62,9 @@ bool Connection::checkConnection()
 
    return true;
 }
-void Connection::processMessage()
+void Connection::processMessage(TokenBucket tokens)
 {
-   char buffer[80];
+   char buffer[2048];
    memset(buffer, 0, sizeof(buffer));
    int recvrc = recv(data[0].fd, buffer, sizeof(buffer), 0);
    if (recvrc < 0)
@@ -88,7 +88,7 @@ void Connection::processMessage()
    {
       m_output->write(buffer);
    }
-
+   tokens.consume(sizeof(buffer));
    ss << "ECHO:" << buffer;
    ss << "\n";
    memset(buffer, 0, sizeof(buffer));

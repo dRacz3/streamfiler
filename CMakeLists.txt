@@ -10,7 +10,8 @@ find_package(Threads REQUIRED)
 include_directories(src
         src/DiskWriter
         src/SocketCommunication
-        src/Utilities)
+        src/Utilities
+        third-party/Tokenbucket)
 
 add_executable(streamfiler
         Server/main.cpp
