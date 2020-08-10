@@ -51,7 +51,7 @@ class Connection
     * Process the message.
     * @param tokens - TokenBucket object to handle bandwidth limitation.
     */
-   void processMessage(TokenBucket tokens);
+   void processMessage(TokenBucket& tokens);
 
    /**
     * Check for the connection state.

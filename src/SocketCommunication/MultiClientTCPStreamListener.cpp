@@ -7,7 +7,7 @@
 
 MultiClientTCPStreamListener::~MultiClientTCPStreamListener() { stop(); }
 MultiClientTCPStreamListener::MultiClientTCPStreamListener(MultiClientTCPStreamListener::Parameters params)
-    : m_params(std::move(params)), m_logger("TCPListener"), m_tokenBucket(26, 26)
+    : m_params(std::move(params)), m_logger("TCPListener"), m_tokenBucket(params.bandwithLimit, params.bandwithLimit)
 {}
 
 bool MultiClientTCPStreamListener::init()
@@ -95,7 +95,7 @@ void MultiClientTCPStreamListener::startBackgroundThread()
          std::for_each(m_connections.begin(), m_connections.end(), [&](Connection& c) { processConnection(c); });
 
          cleanupConnections();
-         usleep(500);
+         usleep(5);
       }
    });
    m_backgroundThread.detach();
@@ -107,6 +107,7 @@ void MultiClientTCPStreamListener::handleNewConnection()
    do
    {
       newFileDescriptor = accept(m_welcomeSocket, nullptr, nullptr);
+      int activeConnectionCount = getNumberOfActiveConnections();
       if (newFileDescriptor < 0)
       {
          if (errno != EWOULDBLOCK)
@@ -115,7 +116,6 @@ void MultiClientTCPStreamListener::handleNewConnection()
          }
          return;
       }
-      int activeConnectionCount = getNumberOfActiveConnections();
       if (activeConnectionCount < m_params.maxConnectionCount + 1)
       {
          connection_id++;

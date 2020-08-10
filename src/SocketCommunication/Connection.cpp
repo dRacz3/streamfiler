@@ -3,6 +3,7 @@
 #include <Utilities/Logger.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <cstring>
 
@@ -71,11 +72,18 @@ bool Connection::checkConnection()
 
    return true;
 }
-void Connection::processMessage(TokenBucket tokens)
+void Connection::processMessage(TokenBucket& tokens)
 {
-   char buffer[2048];
+   const int BUFFER_SIZE = 8;
+   while (!tokens.consume(BUFFER_SIZE))
+   {
+      m_logger.debug("Waiting for tokens...");
+      usleep(5000);
+   }
+   char buffer[BUFFER_SIZE];
    memset(buffer, 0, sizeof(buffer));
-   int recvrc = recv(data[0].fd, buffer, sizeof(buffer), 0);
+   int recvrc = read(data[0].fd, buffer, sizeof(buffer));
+   m_logger.debug("Received: " + std::string(buffer));
    if (recvrc < 0)
    {
       if (errno != EWOULDBLOCK)
@@ -97,11 +105,11 @@ void Connection::processMessage(TokenBucket tokens)
    {
       m_output->write(buffer);
    }
-   tokens.consume(sizeof(buffer));
-   ss << "ECHO:" << buffer;
-   ss << "\n";
+
+   ss << "OK\n";
    memset(buffer, 0, sizeof(buffer));
    strcpy(buffer, ss.str().c_str());
+   m_lastMessageTimestamp = std::chrono::steady_clock::now();
    if (send(data[0].fd, buffer, strlen(buffer), 0) < 0)
    {
       close();
