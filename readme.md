@@ -1,4 +1,5 @@
 # Streamfiler project
+![C/C++ CI](https://github.com/dRacz3/streamfiler/workflows/C/C++%20CI/badge.svg)
 #### NAME
 streamfiler - Receives TCP/IP stream and writes it to disk.
 
