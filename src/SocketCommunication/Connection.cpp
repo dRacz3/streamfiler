@@ -83,7 +83,7 @@ void Connection::processMessage(TokenBucket& tokens)
    char buffer[BUFFER_SIZE];
    memset(buffer, 0, sizeof(buffer));
    int recvrc = read(data[0].fd, buffer, sizeof(buffer));
-   m_logger.info("Received: " + std::string(buffer));
+   m_logger.debug("Received: " + std::string(buffer));
    if (recvrc < 0)
    {
       if (errno != EWOULDBLOCK)
