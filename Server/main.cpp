@@ -2,20 +2,20 @@
 
 static void show_usage()
 {
-   std::cerr << "streamfiler [-options] portnumber " << std::endl
-             << "DESCRIPTION: " << std::endl
-             << "A streamfiler egy porton figyelő alkalmazás, ami a csatlakozott connection tartalmát lemezre írja. A "
-                "kiírt fájl neve megegyezik az érkezési időponttal (milisecundum pontossággal). Egyszerre több "
-                "connection-t tud fogadni paraméterezéstől függően. \n"
-             << "OPTIONS:\n"
-             << "\t-c connections\t\tA maximálisan fogadható párhuzamos connection-ök száma\n"
-             << "\t-f folder\t\tA mappa, ahova az érkztetett állományokat letárolja a program. Ha nem létezik "
-                "induláskor, akkor a program létrehozza azt.\n"
-             << "\t-h \t\t\tShow this help message\n"
-             << "\t-l limit\t\tEkkora limit adatmennyiséget enged szálanként és másodpercenként kilobyte-ban a "
-                "portjára folyatni a program\n"
-             << "\t-t timeout\t\tAzt az időt határozza meg másodpercben, ami után a program bontja az idle "
-                "connection-öket. Timeout -1 esetén nem bontja.\n";
+   std::cerr
+       << "streamfiler [-options] portnumber " << std::endl
+       << "DESCRIPTION: " << std::endl
+       << "Streamfiler is an application that is listening on a specified port. It expects a stream of data from "
+          "a connected client and will writes it to the specified location. The created file's name equals to "
+          "the connections setup timestamp with millisec precision. Can handle multiple connections based on "
+          "parametrisation.\n"
+       << "OPTIONS:\n"
+       << "\t-c connections\t\tMaximum number of parralel connections.\n"
+       << "\t-f folder\t\tFolder, where the content of the TCP stream is written. Will be created if does not exist.\n"
+       << "\t-h \t\t\tDisplay this help message\n"
+       << "\t-l limit\t\toverall bandwith limitation in kb/s\n"
+       << "\t-t timeout\t\tTimeout in seconds. Idle connections after this time will be closed. If set to -1, "
+          "connections will not be timed out.\n";
 }
 
 int main(int argc, char const* argv[])
@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
    std::vector<std::string> sources;
    int connections = 1;
    std::string folder = "./";
-   int limit = 32 * 1024; // byte / sec
+   int limit = 32 * 1024;  // byte / sec
    double timeout = -1;
 
    int port = 2222;
