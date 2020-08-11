@@ -123,7 +123,7 @@ void MultiClientTCPStreamListener::handleNewConnection()
          connection_id++;
          Connection newConnection(connection_id,
                                   newFileDescriptor,
-                                  {m_params.timeout != -1,
+                                  {m_params.timeout < 0,
                                    std::chrono::duration<float, std::milli>(m_params.timeout),
                                    m_params.bandwithLimit},
                                   std::make_shared<DiskWriter>(m_params.folder, getTimestampedNameForFolder()));
