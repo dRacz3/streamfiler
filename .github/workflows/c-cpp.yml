@@ -13,9 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: create build folder
-      run: mkdir -p build && cd build
-    - name: cmake
-      run: cmake ..
-    - name: make
-      run: make
+    - name: run build script
+      run: ./build.sh
+
