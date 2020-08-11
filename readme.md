@@ -41,6 +41,10 @@ cmake ..
 make
 ```
 
+Or, as an alternative you can just run the 
+`./build.sh`
+
+
 The project will build the following targets:
 - streamfiler (main application)
 - streamfilerclient (manual testing application which will stream a rather long message to the application on port 2222)
