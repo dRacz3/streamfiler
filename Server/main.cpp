@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
    std::vector<std::string> sources;
    int connections = 1;
    std::string folder = "./";
-   int limit = 32; // byte / sec
+   int limit = 32 * 1024; // byte / sec
    double timeout = -1;
 
    int port = 2222;
@@ -75,7 +75,7 @@ int main(int argc, char const* argv[])
       {
          if (i + 1 < argc)
          {
-            limit = std::stoi(std::string(argv[++i]));
+            limit = std::stoi(std::string(argv[++i])) * 1024;
             std::cout << "Limit: " << limit << std::endl;
          }
          else
