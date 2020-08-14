@@ -13,7 +13,7 @@ Streamfiler is an application that is listening on a specified port. It expects 
 
 #### OPTIONS
 -c connections  
-`Maximum number of parralel connections.`
+`Maximum number of parallel connections.`
     
 
 -f folder  
